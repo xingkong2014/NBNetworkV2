@@ -60,6 +60,12 @@ int main()
 						}
 					}
 				}
+				else {
+					std::cout << "recvData failed : " << ec.message() << std::endl;
+				}
+			}
+			else {
+				std::cout << "sendData failed : " << ec.message() << std::endl;
 			}
 		}
 		else {

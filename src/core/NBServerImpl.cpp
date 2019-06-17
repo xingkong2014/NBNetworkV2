@@ -4,16 +4,17 @@
 using namespace boost::asio;
 namespace nbnetwork {
 	std::shared_ptr<NBServer> NBServer::create(char const *_localip, short _port,
-		ioHandler const &_handlerCallback, closeHandler const &_closeCallback,
+		newHandler const &_newCallback, ioHandler const &_handlerCallback, closeHandler const &_closeCallback,
 		unsigned _inBufferSize, unsigned _outBufferSize)
 	{
-		return std::make_shared<NBServerImpl>(_localip, _port, _handlerCallback, _closeCallback, _inBufferSize, _outBufferSize);
+		return std::make_shared<NBServerImpl>(_localip, _port, _newCallback, _handlerCallback, _closeCallback, _inBufferSize, _outBufferSize);
 	}
 
 	NBServerImpl::NBServerImpl(char const *_localip, short port,
-		ioHandler const &_handlerCallback, closeHandler const &_closeCallback,
+		newHandler const &_newCallback, ioHandler const &_handlerCallback, closeHandler const &_closeCallback,
 		unsigned _inBufferSize, unsigned _outBufferSize)
 		:m_acceptor(m_ioService, ip::tcp::endpoint(ip::address_v4::from_string(_localip), port))
+		, m_newCallback(_newCallback)
 		, m_handlerCallback(_handlerCallback)
 		, m_closeCallback(_closeCallback)
 		, m_inBufferSize(_inBufferSize)
@@ -88,14 +89,15 @@ namespace nbnetwork {
 	
 	void NBServerImpl::doAccept()
 	{
-		auto session = std::make_shared<NBSession>(m_ioService, shared_from_this(), m_handlerCallback, m_closeCallback, m_inBufferSize, m_outBufferSize);
+		auto session = std::make_shared<NBSession>(m_ioService, shared_from_this(), m_newCallback, m_handlerCallback, m_closeCallback, m_inBufferSize, m_outBufferSize);
 		m_acceptor.async_accept(session->socket(), [this, session](boost::system::error_code ec) {
 			if (!ec)
 			{
-				session->start();
-
-				std::lock_guard<std::mutex> lock(m_mutex);
-				m_sessions.insert(session);
+				if (session->start())
+				{
+					std::lock_guard<std::mutex> lock(m_mutex);
+					m_sessions.insert(session);
+				}
 			}
 
 			doAccept();

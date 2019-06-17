@@ -118,6 +118,11 @@ private:
 class ClientManager
 {
 public:
+	bool newClient(char const *_clientIp, unsigned short _clientPort)
+	{
+		return true;
+	}
+
 	HandleResult dealPackage(char const *_clientIp, unsigned short _clientPort, NBRequest &_request,
 		NBReadResponse &_readResponse, NBWriteResponse &_writeResponse)
 	{
@@ -138,7 +143,8 @@ int main()
 {
 	ClientManager clientManager;
 
-	auto s = NBServer::create("127.0.0.1", 7195, std::bind(&ClientManager::dealPackage, &clientManager, _1, _2, _3, _4, _5),
+	auto s = NBServer::create("127.0.0.1", 7195, std::bind(&ClientManager::newClient, &clientManager, _1, _2),
+		std::bind(&ClientManager::dealPackage, &clientManager, _1, _2, _3, _4, _5),
 		std::bind(&ClientManager::clientClose, &clientManager, _1, _2));
 
 	s->start();

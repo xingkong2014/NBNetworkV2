@@ -13,8 +13,19 @@
 ## 例子
 ### 服务端
 
-    auto s = NBServer::create("127.0.0.1", 7195, dealPackage);
+    auto s = NBServer::create("127.0.0.1", 7195, newClient, dealPackage, closeClient);
 	s->start();
+
+其中`newClient`表示有客户端连接的回调函数，`dealPackage`表示收到客户端数据的回调函数，`closeClient`表示客户端关闭的回调函数。
+
+`newClient()`函数原型为
+
+	bool newClient(char const *_clientIp, unsigned short _clientPort)
+	{
+		return true;
+	}
+
+参数`_clientIp`和`_clientPort`表示连接的客户端的IP和端口，如果允许连接，返回true，否则返回false。
 
 `dealPackage()`函数原型为
 
@@ -76,6 +87,12 @@
 
 例如当前`_request`中的数据还不够，还需要读，则在`_readResponse`中设置继续读取数据的位置和大小(大小设置为0表示读取任意长度，否则会一直读取到要求的长度才会返回)，并返回`HandleResult::READ`。
 如果`_request`中的数据中的数据足够，并且处理完成后需要向客户端发送回应包，则在`_writeResponse`中保存好需要发送的数据，并返回`HandleResult::WRITE`。
+
+`closeClient()`函数原型为
+
+	void closeClient(char const *_clientIp, unsigned short _clientPort)
+	{
+	}
 
 ### 客户端
 

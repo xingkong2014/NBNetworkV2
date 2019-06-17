@@ -12,6 +12,8 @@ namespace nbnetwork {
 		FAILED
 	};
 
+	using newHandler = std::function<bool(char const *_clientIp, unsigned short _clientPort)>;
+
 	using ioHandler = std::function<HandleResult(char const *_clientIp, unsigned short _clientPort, NBRequest &_request,
 		NBReadResponse &_readResponse, NBWriteResponse &_writeResponse)>;
 
@@ -22,7 +24,7 @@ namespace nbnetwork {
 #define DEFAULT_BUFFER_SIZE		1024
 	public:
 		static std::shared_ptr<NBServer> create(char const *_localip, short _port,
-			ioHandler const &_handlerCallback, closeHandler const &_closeCallback,
+			newHandler const &_newCallback, ioHandler const &_handlerCallback, closeHandler const &_closeCallback,
 			unsigned _inBufferSize = DEFAULT_BUFFER_SIZE, unsigned _outBufferSize = DEFAULT_BUFFER_SIZE);
 		virtual ~NBServer() = default;
 

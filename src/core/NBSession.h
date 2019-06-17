@@ -11,13 +11,13 @@ namespace nbnetwork {
 	{
 	public:
 		NBSession(boost::asio::io_service &_ioService, std::shared_ptr<NBServerImpl> const &_pServer,
-			ioHandler &_handlerCallback, closeHandler &_closeCallback,
+			newHandler &_newCallback, ioHandler &_handlerCallback, closeHandler &_closeCallback,
 			unsigned _inBufferSize, unsigned _outBufferSize);
 
 		~NBSession();
 
 		boost::asio::ip::tcp::socket &socket() { return m_socket; }
-		void start();
+		bool start();
 		void stop();
 		time_t ioTime() const { return m_lastIOTime; }
 
@@ -40,6 +40,7 @@ namespace nbnetwork {
 
 		RawBuffer m_writeDataInfo;
 
+		newHandler &m_newCallback;
 		ioHandler &m_handlerCallback;
 		closeHandler &m_closeCallback;
 		std::shared_ptr<NBServerImpl> m_pServer;

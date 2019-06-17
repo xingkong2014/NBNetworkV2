@@ -6,14 +6,15 @@
 using namespace boost::asio;
 namespace nbnetwork {
 	NBSession::NBSession(boost::asio::io_service &_ioService, std::shared_ptr<NBServerImpl> const &_pServer,
-		ioHandler &_handlerCallback, closeHandler &_closeCallback,
+		newHandler &_newCallback, ioHandler &_handlerCallback, closeHandler &_closeCallback,
 		unsigned _inBufferSize, unsigned _outBufferSize)
 		:m_socket(_ioService)
 		, m_inBuffer(_inBufferSize)
 		, m_outBuffer(_outBufferSize)
-		,m_handlerCallback(_handlerCallback)
-		,m_closeCallback(_closeCallback)
-		,m_pServer(_pServer)
+		, m_newCallback(_newCallback)
+		, m_handlerCallback(_handlerCallback)
+		, m_closeCallback(_closeCallback)
+		, m_pServer(_pServer)
 	{
 	}
 
@@ -23,11 +24,16 @@ namespace nbnetwork {
 		m_closeCallback(m_strClientIp.c_str(), m_port);
 	}
 
-	void NBSession::start()
+	bool NBSession::start()
 	{
 		m_strClientIp = m_socket.remote_endpoint().address().to_string();
 		m_port = m_socket.remote_endpoint().port();
-		doRead(&m_inBuffer[0], 0);
+		if (m_newCallback(m_strClientIp.c_str(), m_port))
+		{
+			doRead(&m_inBuffer[0], 0);
+			return true;
+		}
+		return false;
 	}
 
 	void NBSession::stop()
