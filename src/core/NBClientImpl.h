@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../NBClient.h"
-#include "NBProtocol.h"
 
 namespace nbnetwork {
 	class NBClientImpl : public NBClient

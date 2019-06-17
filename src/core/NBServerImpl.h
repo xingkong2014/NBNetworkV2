@@ -13,7 +13,7 @@ namespace nbnetwork {
 	{
 	public:
 		NBServerImpl(char const *_localip, short _port,
-			handler const &_handlerCallback,
+			ioHandler const &_handlerCallback, closeHandler const &_closeCallback,
 			unsigned _inBufferSize = DEFAULT_BUFFER_SIZE, unsigned _outBufferSize = DEFAULT_BUFFER_SIZE);
 		virtual ~NBServerImpl();
 
@@ -35,7 +35,8 @@ namespace nbnetwork {
 		unsigned m_inBufferSize;
 		unsigned m_outBufferSize;
 
-		handler m_handlerCallback;
+		ioHandler m_handlerCallback;
+		closeHandler m_closeCallback;
 	};
 }
 

@@ -1,18 +1,18 @@
 #include <boost/bind.hpp>
 #include <iostream>
 #include "NBSession.h"
-#include "NBProtocol.h"
 #include "NBServerImpl.h"
 
 using namespace boost::asio;
 namespace nbnetwork {
 	NBSession::NBSession(boost::asio::io_service &_ioService, std::shared_ptr<NBServerImpl> const &_pServer,
-		handler &_handlerCallback,
+		ioHandler &_handlerCallback, closeHandler &_closeCallback,
 		unsigned _inBufferSize, unsigned _outBufferSize)
 		:m_socket(_ioService)
 		, m_inBuffer(_inBufferSize)
 		, m_outBuffer(_outBufferSize)
 		,m_handlerCallback(_handlerCallback)
+		,m_closeCallback(_closeCallback)
 		,m_pServer(_pServer)
 	{
 	}
@@ -20,6 +20,7 @@ namespace nbnetwork {
 	NBSession::~NBSession()
 	{
 		std::cout << "NBSession close" << std::endl;
+		m_closeCallback(m_strClientIp.c_str(), m_port);
 	}
 
 	void NBSession::start()

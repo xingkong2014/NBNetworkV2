@@ -2,7 +2,6 @@
 
 #include <boost/asio.hpp>
 #include <vector>
-#include "NBProtocol.h"
 #include "../NBServer.h"
 
 namespace nbnetwork {
@@ -12,7 +11,7 @@ namespace nbnetwork {
 	{
 	public:
 		NBSession(boost::asio::io_service &_ioService, std::shared_ptr<NBServerImpl> const &_pServer,
-			handler &_handlerCallback,
+			ioHandler &_handlerCallback, closeHandler &_closeCallback,
 			unsigned _inBufferSize, unsigned _outBufferSize);
 
 		~NBSession();
@@ -36,15 +35,13 @@ namespace nbnetwork {
 
 		std::atomic<time_t> m_lastIOTime{ 0 };
 
-		NBHead	m_head;
-		unsigned const m_headSize = sizeof(NBHead);
-
 		std::vector<char> m_inBuffer;
 		std::vector<char> m_outBuffer;
 
 		RawBuffer m_writeDataInfo;
 
-		handler &m_handlerCallback;
+		ioHandler &m_handlerCallback;
+		closeHandler &m_closeCallback;
 		std::shared_ptr<NBServerImpl> m_pServer;
 	};
 

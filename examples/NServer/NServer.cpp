@@ -118,10 +118,16 @@ private:
 class ClientManager
 {
 public:
-	HandleResult dealPackage(char const *_clientIp, short _clientPort, NBRequest &_request,
+	HandleResult dealPackage(char const *_clientIp, unsigned short _clientPort, NBRequest &_request,
 		NBReadResponse &_readResponse, NBWriteResponse &_writeResponse)
 	{
 		return m_clients[ClientInfo(_clientIp, _clientPort)].dealPackage(_request, _readResponse, _writeResponse);
+	}
+
+	void clientClose(char const *_clientIp, unsigned short _clientPort)
+	{
+		m_clients.erase(ClientInfo(_clientIp, _clientPort));
+		std::cout << "client : " << _clientIp << ", port : " << _clientPort << " closed." << std::endl;
 	}
 protected:
 private:
@@ -132,7 +138,8 @@ int main()
 {
 	ClientManager clientManager;
 
-	auto s = NBServer::create("127.0.0.1", 7195, std::bind(&ClientManager::dealPackage, &clientManager, _1, _2, _3, _4, _5));
+	auto s = NBServer::create("127.0.0.1", 7195, std::bind(&ClientManager::dealPackage, &clientManager, _1, _2, _3, _4, _5),
+		std::bind(&ClientManager::clientClose, &clientManager, _1, _2));
 
 	s->start();
 
